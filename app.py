@@ -19,6 +19,62 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
+# --- कस्टम डार्क CSS जोड़ना ---
+st.markdown("""
+    <style>
+    /* 1. पूरे ऐप का बैकग्राउंड और टेक्स्ट का रंग */
+    .stApp {
+        background-color: #0b132b !important;
+        color: #f8fafc !important;
+    }
+
+    /* 2. साइडबार का बैकग्राउंड */
+    [data-testid="stSidebar"] {
+        background-color: #1c2541 !important;
+    }
+
+    /* 3. मुख्य हेडिंग और सब-टाइटल का रंग */
+    h1, h2, h3, h4, p, label {
+        color: #ffffff !important;
+    }
+
+    /* 4. बटन्स की स्टाइलिंग (ग्रीन थीम) */
+    .stButton > button {
+        background-color: #22c55e !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        transition: 0.3s !important;
+    }
+    .stButton > button:hover {
+        background-color: #16a34a !important;
+        transform: scale(1.02);
+    }
+
+    /* 5. रिजल्ट कार्ड्स (डार्क कार्ड्स) */
+    .card {
+        background-color: #1e293b !important;
+        border-radius: 10px !important;
+        padding: 16px !important;
+        margin-bottom: 15px !important;
+        border-left: 5px solid #22c55e !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    /* 6. इनपुट बॉक्स का रंग */
+    input, textarea {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+st.markdown("""
+<div class="card">
+    <h4>🌱 रीसाइक्लिंग सुझाव:</h4>
+    <p>इस कचरे को कंपोस्ट पिट में डालकर जैविक खाद बनाई जा सकती है।</p>
+</div>
+""", unsafe_allow_html=True)
 
 # Green Sustainability Theme CSS
 st.markdown("""
@@ -104,15 +160,16 @@ Use this exact JSON schema:
 # HELPER FUNCTIONS
 # ==========================================
 def get_api_key():
-    """Retrieve API Key from st.secrets or user input."""
-    if "GEMINI_API_KEY" in st.secrets:
-        return st.secrets["GEMINI_API_KEY"]
+    # 1. पहले Streamlit secrets में चेक करें (बिना क्रैश हुए)
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        pass
     
-    st.sidebar.markdown("### 🔑 API Configuration")
-    api_key_input = st.sidebar.text_input("Enter Google Gemini API Key", type="password")
-    if not api_key_input:
-        st.sidebar.warning("API Key is required to run the analysis.")
-    return api_key_input
+    # 2. अगर secrets नहीं है, तो साइडबार में इनपुट बॉक्स दिखाएं
+    api_key = st.sidebar.text_input("Gemini API Key डालें:", type="password")
+    return api_key
 
 def clean_and_parse_json(raw_text: str) -> dict:
     """Safely strips markdown formatting and parses JSON."""
